@@ -5,7 +5,7 @@ package shapes;
 public class Main {
     public static void main(String[] args) {
         Point point = new Point(3,3);
-        Point point2 = new Point(4,4);
+        Point point2 = new Point(6,7);
         double dis = point.distanceBetween(point2);
         System.out.println(point.toString());
         System.out.println(point2.toString());
