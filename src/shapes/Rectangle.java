@@ -3,12 +3,12 @@ package shapes;
 public class Rectangle extends Shape2D {
 
     private double width;
-    private double height;
+    private double length;
 
-    public Rectangle(Point centre, double width, double height) {
+    public Rectangle(Point centre, double width, double length) {
         super(centre);
         this.width = width;
-        this.height = heightl
+        this.length = length;
     }
 
     public double getWidth() {
@@ -19,38 +19,38 @@ public class Rectangle extends Shape2D {
         this.width = value;
     }
 
-    public double getHeight() {
-        return this.height;
+    public double getLength() {
+        return this.length;
     }
 
-    public void setHeight(double value) {
-        this.height = value;
+    public void setLength(double value) {
+        this.length = value;
     }
     @Override
     public double getArea() {
-        return this.width * this.height;
+        return this.width * this.length;
     }
 
     @Override
     public double getPerimeter() {
-        return 2 * (this.width + this.height);
+        return 2 * (this.width + this.length);
     }
 
     @Override
     public boolean containsPoint(Point checkPoint) {
         return checkPoint.getXCord() >= centre.getXCord() - this.width / 2
                 && checkPoint.getXCord() <= centre.getXCord() + this.width / 2
-                && checkPoint.getYCord() >= centre.getYCord() - this.height / 2
-                && checkPoint.getYCord() <= centre.getYCord() + this.height / 2;
+                && checkPoint.getYCord() >= centre.getYCord() - this.length / 2
+                && checkPoint.getYCord() <= centre.getYCord() + this.length / 2;
     }
 
     @Override
     public Point[] getVertices() {
         return new Point[] {
-                new Point(centre.getXCord() - this.width / 2, centre.getYCord() + this.height / 2),
-                new Point(centre.getXCord() + this.width / 2, centre.getYCord() + this.height / 2),
-                new Point(centre.getXCord() - this.width / 2, centre.getYCord() - this.height / 2),
-                new Point(centre.getXCord() + this.width / 2, centre.getYCord() - this.height / 2)
+                new Point(centre.getXCord() - this.width / 2, centre.getYCord() + this.length / 2),
+                new Point(centre.getXCord() + this.width / 2, centre.getYCord() + this.length / 2),
+                new Point(centre.getXCord() - this.width / 2, centre.getYCord() - this.length / 2),
+                new Point(centre.getXCord() + this.width / 2, centre.getYCord() - this.length / 2)
         };
     }
 }

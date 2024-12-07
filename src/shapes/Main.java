@@ -1,6 +1,8 @@
 package shapes;
 
+import java.awt.*;
 import java.util.Scanner;
+
 
 /**
  * Driver class for the program. Do not modify.
@@ -9,142 +11,223 @@ import java.util.Scanner;
 
 public class Main {
 
+    private final static String SHAPE_NUMBER = "Enter the number of shapes to create -> ";
+    private final static String NUMBER_OF_POINTS = "Enter the number of points to create -> ";
+    private final static String CENTRE_OF_SHAPE = "Enter the centre of shape %d -> ";
+    private final static String POINT_ENTRY_NARRATION =  "Enter the coordinates of the point in the form x,y -> ";
+    private final static String SHAPE_TYPE_NARRATION = "Select the type of shape to create from the following options:\n%s";
+    private final static String SHAPE_MENU = "1. Equilateral Triangle\n2. Circle\n3. Rectangle\n4. Square\n\nSelection (1,2,3,4) -> ";
+    private final static String TRIANGLE_SIDE = "Enter the side length of the Equilateral Triangle -> ";
+    private final static String CIRCLE_RADIUS = "Enter the radius of the circle -> ";
+    private final static String SQUARE_SIDE = "Enter the length of the Square side -> ";
+    private final static String RECTANGLE_LENGTH = "Enter the length of the Rectangle -> ";
+    private final static String RECTANGLE_WIDTH = "Enter the width of the Rectangle -> ";
+    private final static String POINT_NUMBER = "Enter the number of points (Maximum of 5 points to check) -> ";
+    private final static int NUMBER_OF_POINTS_TO_CHECK = 5;
+    private final static String SPECIFIC_POINT_ENTRY_NARRATION =  "Enter the coordinates of point %d in the form x,y -> ";
+    private final static String TRANSLATE_SHAPES = "Enter the amount to translate the shapes, in the form dx,dy -> ";
+    private final static int TRIANGLE = 1;
+    private final static int CIRCLE = 2;
+    private final static int RECTANGLE = 3;
+    private final static int SQUARE = 4;
+
+
+
     public static void main(String[] args)     {
 
         System.out.println( "===========================" );
 
-        int numberOfShapes=0;
-        do {
-            System.out.println( "Enter the number of shapes: " );
-            while (!UserInput.hasNextInt()) {
-                System.out.println("Invalid input - please enter a positive number!");
-                UserInput.next();
-            }
-            numberOfShapes = UserInput.nextInt();
-        } while (numberOfShapes <= 0);
-        Shape2D[] shapes = ReadShapes(numberOfShapes);
+        int numberOfShapes=askIntegerInput(SHAPE_NUMBER,0, Integer.MAX_VALUE);
+        Shape2D[] shapes = readShapes(numberOfShapes);
 
-        // Prompt the user to enter the number of points and read them
-        System.out.println( "Enter the number of points: " );
-        int numberOfPoints = Integer.parseInt( Console.ReadLine() );
-        Point2D[] points = ReadPoints(numberOfPoints);
+        int numberOfPoints = askIntegerInput(POINT_NUMBER,1,NUMBER_OF_POINTS_TO_CHECK);
+        Point[] points = readPoints(numberOfPoints);
 
         // Print the shapes and whether they contain the points
-        PrintShapesDetails(shapes, points);
+        printShapesDetails(shapes, points);
 
         // Translate the shapes
-        Console.WriteLine( "Enter the amount to translate the shapes, in the form dx,dy:" );
-        string[] translation = Console.ReadLine().Split( ',' );
-        double dx = double.Parse( translation[0] );
-        double dy = double.Parse( translation[1] );
-        foreach (Shape2D shape in shapes)
-        {
-            shape.Translate( dx, dy );
-        }
+        translateShapes(shapes, points);
 
         // Print the shapes and whether they still contain the points
-        PrintShapesDetails(shapes, points);
+        printShapesDetails(shapes, points);
 
-        Console.WriteLine( "===========================" );
+        System.out.println( "===========================" );
     }
 
-    /// <summary>
-    /// Reads the shapes from the console
-    /// </summary>
-    /// <param name="numberOfShapes">The number of shapes to read</param>
-    /// <returns>A list of shapes</returns>
-    static Shape2D[] ReadShapes(int numberOfShapes)
+    /**
+     * Method to invoke translation for each of the shape objects
+     * @param shapes Array of all shapes
+     * @param points Array of points to check
+     */
+    public static void translateShapes(Shape2D[] shapes, Point[] points) {
+        System.out.print(TRANSLATE_SHAPES);
+        Point translate = readPoint(TRANSLATE_SHAPES);
+        for (Shape2D shape : shapes) {
+            shape.translate(translate.getXCord(), translate.getYCord());
+        }
+        printShapesDetails(shapes, points);
+    }
+
+
+
+    /**
+     * Method to get dimensions/required parameters of th
+     * @param numberOfShapes Number of shapes to be created
+     * @return Array of shapes
+     */
+    static Shape2D[] readShapes(int numberOfShapes)
     {
+
         Shape2D[] shapes = new Shape2D[numberOfShapes];
 
         for (int i = 0; i < numberOfShapes; i++)
         {
-            System.out.printf( "Enter the centre of shape %d:", i + 1 );
-            Point centre = ReadPoint();
-            Console.WriteLine( @"Enter the type of shape {0}:
-            {1}. Equilateral Triangle
-            {2}. Circle
-            {3}. Rectangle
-            {4}. Square", i + 1, TRIANGLE, CIRCLE, RECTANGLE, SQUARE );
-            Console.WriteLine( "Enter your choice: " );
+            String narration = String.format(CENTRE_OF_SHAPE, i+1);
 
-            // Read the user's choice, and create the corresponding shape
-            int choice = int.Parse( Console.ReadLine() );
+            Point centre = readPoint(narration);
+
+            String concat_narration = String.format(SHAPE_TYPE_NARRATION,SHAPE_MENU);
+            int choice = askIntegerInput(concat_narration,0,5);
+
             switch (choice)
             {
                 case TRIANGLE:
-                    shapes[i] = ReadEquilateralTriangle(centre);
+                    shapes[i] = readEquilateralTriangle(centre);
                     break;
                 case CIRCLE:
-                    shapes[i] = ReadCircle(centre);
+                    shapes[i] = readCircle(centre);
                     break;
                 case RECTANGLE:
-                    shapes[i] = ReadRectangle(centre);
+                    shapes[i] = readRectangle(centre);
                     break;
                 case SQUARE:
-                    shapes[i] = ReadSquare(centre);
+                    shapes[i] = readSquare(centre);
                     break;
                 default:
-                    Console.WriteLine( "Invalid choice" );
+                    System.out.println( "Invalid choice" );
                     break;
             }
         }
         return shapes;
     }
 
-    /// <summary>
-    /// Prints the details of the shapes and whether they contain the points
-    /// </summary>
-    /// <param name="shapes">The shapes to print</param>
-    /// <param name="points">The points to check for containment</param>
-    static void PrintShapesDetails(Shape2D[] shapes, Point2D[] points)
+
+    /**
+     * Method for getting input as an double - validated input plus given range of acceptable values
+     * @param narration Prompt for the user instructing what input required
+     * @param lowerLimit Lowest acceptable value
+     * @param upperLimit Highest acceptable value
+     * @return The double entered by user in console
+     */
+    public static double askDoubleInput(String narration, double lowerLimit, double upperLimit) {
+        boolean valid = false;
+        double num =0;
+        while (!valid) {
+            System.out.println(narration);
+
+            try {
+                num = UserInput.nextDouble();
+                valid = true;
+            } catch (NumberFormatException ex) {
+                System.out.println("Invalid input - please enter an integer\n");
+            }
+        }
+        return num;
+    }
+
+    /**
+     * Method for getting input as an integer - validated input plus given range of acceptable values
+     * @param narration Prompt for the user instructing what input required
+     * @param lowerLimit Lowest acceptable value
+     * @param upperLimit Highest acceptable value
+     * @return The integer entered by user in console
+     */
+    public static int askIntegerInput(String narration, int lowerLimit, int upperLimit) {
+        boolean valid = false;
+        int num =0;
+        while (!valid) {
+            System.out.print( narration );
+            try {
+                num = UserInput.nextInt();
+                if ((num<=lowerLimit) || (num>=upperLimit)) {
+                    System.out.printf("Invalid input - enter a number greater than %d and less than %d\n", lowerLimit, upperLimit);
+                } else {
+                    valid = true;
+                }
+            } catch (NumberFormatException ex) {
+                System.out.println("Invalid input - please enter an integer\n");
+            }
+        }
+        return num;
+    }
+
+     /**
+     * Prints the details of the shapes and whether they contain the points
+     * @param shapes The shapes to print
+     * @param points The points to check if contained in the shape object
+     */
+    static void printShapesDetails(Shape2D[] shapes, Point[] points)
     {
-        foreach (Shape2D shape in shapes)
+        int count = 1;
+        for (Shape2D shape : shapes)
         {
-            // Print the shape's name
-            Console.WriteLine( "Shape: {0}", shape.GetType().Name );
+
+            System.out.printf( "Shape %d is %s",count, shape.getClass() );
 
             // Print whether the shape contains each point
-            foreach (Point2D point in points)
+            for (Point point : points)
             {
-                if (shape.ContainsPoint( point ))
+                if (shape.containsPoint( point ))
                 {
-                    Console.WriteLine( "\tContains point {0}", point );
+                    System.out.printf( "%s contains the point %.2f , %.2f ", shape.getClass(), point.getXCord(), point.getYCord());
                 }
             }
             // Print the shape's details
-            Console.WriteLine( "Vertices: {0:0.00}", string.Join<Point2D>( ", ", shape.GetVertices() ) );
-            Console.WriteLine( "Area: {0:0.00}", shape.Area );
-            Console.WriteLine( "Perimeter: {0:0.00}", shape.Perimeter );
+            if (!(shape instanceof Circle)) {
+                Point[] vert = shape.getVertices();
+                for (int i=0; i < vert.length; i++) {
+                    System.out.printf("Vertices %d is %.2f , %.2f", i+1, vert[i].getXCord(), vert[i].getYCord());
+                }
+            } else {
+                System.out.println("Shape is Circle and has no vertices");
+            }
+            System.out.printf( "Area: %.2f", shape.getArea() );
+            System.out.printf( "Perimeter: %.2f", shape.getPerimeter() );
         }
     }
 
-    /// <summary>
-    /// Read multiple points from the console
-    /// </summary>
-    /// <param name="numberOfPoints">The number of points to read</param>
-    /// <returns>A list of points</returns>
-    static Point[] ReadPoints(int numberOfPoints)
+
+    /**
+     * Reads a number of points from the user as input in the console in the form of x,y
+     * (x coordinate, y coordinate)
+     * @param numberOfPoints Number of times the method will call helper function to take
+     *                       inputs from user from console in the form of x,y on Cartesian Plane
+     * @return Array of Point objects representing the x,y coordinates entered by user
+     */
+    static Point[] readPoints                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   (int numberOfPoints)
     {
         Point[] points = new Point[numberOfPoints];
         for (int i = 0; i < numberOfPoints; i++)
         {
-            System.out.printf( "Enter point %d:", i + 1 );
-            points[i] = ReadPoint();
+           String narration = String.format(SPECIFIC_POINT_ENTRY_NARRATION, i);
+            points[i] = readPoint(narration);
         }
         return points;
     }
 
-    /// <summary>
-    /// Reads a point from the console
-    /// </summary>
-    /// <returns>The point</returns>
-    static Point ReadPoint()
+
+    /**
+     * Reads a point as input from user in form of x,y (x coordinate, y coordinate)
+     * @param narration is the prompt to the user as to type of input type/format required
+     * @return Point object representing point on Cartesian plane
+     */
+    static Point readPoint(String narration)
     {
         double x=0,y=0;
         boolean valid = false;
         while (!valid) {
-            System.out.println( "Enter the coordinates of the point in the form x,y:" );
+            System.out.println( narration );
             String input = UserInput.nextLine();
             String regex=",";
             String[] coordinates = input.split( regex,2 );
@@ -154,7 +237,11 @@ public class Main {
                 try {
                     x = Double.parseDouble( coordinates[0] );
                     y = Double.parseDouble( coordinates[1] );
-                    valid = true;
+                    if ((x <=0) || (y<=0)) {
+                        System.out.println("Invalid input - points entered must be in positive cartesian plane (not less than zero\n");
+                    } else {
+                        valid = true;
+                    }
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid number format - please enter a number (int or decimal");
                 }
@@ -165,53 +252,52 @@ public class Main {
         return new Point(x, y);
     }
 
-    /// <summary>
-    /// Reads an equilateral triangle from the console
-    /// </summary>
-    /// <param name="centre">The centre of the triangle</param>
-    /// <returns>The equilateral triangle</returns>
-    static EquilateralTriangle ReadEquilateralTriangle(Point2D centre)
+    /**
+     * Method gathers required data to create Equilateral Triangle object
+     * @param centre which is the centre of the triangle
+     * @return Equilateral Triangle object
+     */
+    static EquilateralTriangle readEquilateralTriangle(Point centre)
     {
-        Console.WriteLine( "Enter the side length: " );
-        double sideLength = double.Parse( Console.ReadLine() );
-        return new EquilateralTriangle( centre, sideLength );
+        double side = askDoubleInput(TRIANGLE_SIDE, 1, Double.MAX_VALUE);
+
+        return new EquilateralTriangle( centre, side );
     }
 
-    /// <summary>
-    /// Reads a circle from the console
-    /// </summary>
-    /// <param name="centre">The centre of the circle</param>
-    /// <returns>The circle</returns>
-    static Circle ReadCircle(Point2D centre)
+    /**
+     * Method gathers required data for a Circle object
+     * @param centre of the circle
+     * @return Circle object
+     */
+    static Circle readCircle(Point centre)
     {
-        Console.WriteLine( "Enter the radius: " );
-        double radius = double.Parse( Console.ReadLine() );
+        double radius = askDoubleInput(CIRCLE_RADIUS, 1, Double.MAX_VALUE);
+
         return new Circle( centre, radius );
     }
 
-    /// <summary>
-    /// Reads a rectangle from the console
-    /// </summary>
-    /// <param name="centre">The centre of the rectangle</param>
-    /// <returns>The rectangle</returns>
-    static Rectangle ReadRectangle(Point2D centre)
+    /**
+     * Method gathers required data to create a Rectangle object
+     * @param centre of the Rectable
+     * @return Rectangle object
+     */
+    static Rectangle readRectangle(Point centre)
     {
-        Console.WriteLine( "Enter the width and height, separated by a comma:" );
-        string[] dimensions = Console.ReadLine().Split( ',' );
-        double width = double.Parse( dimensions[0] );
-        double height = double.Parse( dimensions[1] );
-        return new Rectangle( centre, width, height );
+        double width = askDoubleInput(RECTANGLE_WIDTH, 1, Double.MAX_VALUE);
+        double length = askDoubleInput(RECTANGLE_LENGTH, 1, Double.MAX_VALUE);
+
+        return new Rectangle( centre, width, length );
     }
 
-    /// <summary>
-    /// Reads a square from the console
-    /// </summary>
-    /// <param name="centre">The centre of the square</param>
-    /// <returns>The square</returns>
-    static Square ReadSquare(Point2D centre)
+    /**
+     * Method gathers required data to create a Square object
+     * @param centre of the Square
+     * @return Square object
+     */
+    static Square readSquare(Point centre)
     {
-        Console.WriteLine( "Enter the side length: " );
-        double sideLength = double.Parse( Console.ReadLine() );
-        return new Square( centre, sideLength );
+        double length = askDoubleInput(SQUARE_SIDE, 1, Double.MAX_VALUE);
+
+        return new Square( centre, length );
     }
 }
