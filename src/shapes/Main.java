@@ -8,9 +8,6 @@ import java.util.Scanner;
 
 
 public class Main {
-    Scanner scanner = new Scanner(System.in);
-    UserInput input = new UserInput();
-    UserInput.getInstance().nex
 
     public static void main(String[] args)     {
 
@@ -19,17 +16,17 @@ public class Main {
         int numberOfShapes=0;
         do {
             System.out.println( "Enter the number of shapes: " );
-            while (!scanner.hasNextInt()) {
+            while (!UserInput.hasNextInt()) {
                 System.out.println("Invalid input - please enter a positive number!");
-                scanner.next();
+                UserInput.next();
             }
-            numberOfShapes = scanner.nextInt();
+            numberOfShapes = UserInput.nextInt();
         } while (numberOfShapes <= 0);
         Shape2D[] shapes = ReadShapes(numberOfShapes);
 
         // Prompt the user to enter the number of points and read them
-        Console.WriteLine( "Enter the number of points: " );
-        int numberOfPoints = int.Parse( Console.ReadLine() );
+        System.out.println( "Enter the number of points: " );
+        int numberOfPoints = Integer.parseInt( Console.ReadLine() );
         Point2D[] points = ReadPoints(numberOfPoints);
 
         // Print the shapes and whether they contain the points
@@ -144,12 +141,28 @@ public class Main {
     /// <returns>The point</returns>
     static Point ReadPoint()
     {
-        System.out.println( "Enter the coordinates of the point in the form x,y:" );
-        String coOrdinates = scanner.nextLine();
-        String[] coordinates = Console.ReadLine().Split( ',' );
-        double x = double.Parse( coordinates[0] );
-        double y = double.Parse( coordinates[1] );
-        return new Point2D(x, y);
+        double x=0,y=0;
+        boolean valid = false;
+        while (!valid) {
+            System.out.println( "Enter the coordinates of the point in the form x,y:" );
+            String input = UserInput.nextLine();
+            String regex=",";
+            String[] coordinates = input.split( regex,2 );
+            if (coordinates.length!=2) {
+                System.out.println("Invalid input - please enter point in form x,y e.g. 2.4, 6.5\n");
+            } else {
+                try {
+                    x = Double.parseDouble( coordinates[0] );
+                    y = Double.parseDouble( coordinates[1] );
+                    valid = true;
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format - please enter a number (int or decimal");
+                }
+            }
+
+        }
+
+        return new Point(x, y);
     }
 
     /// <summary>
