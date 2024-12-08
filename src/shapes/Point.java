@@ -28,11 +28,27 @@ public class Point {
     }
 
     /**
+     * Setter for x-axis position of point object
+     * @param value for the x-axis coordinate
+     */
+    public void setXCord(double value) {
+        this.xCord = value;
+    }
+
+    /**
      * Getter for y-axis position of point object
      * @return double representing y-axis value
      */
     public double getYCord() {
         return this.yCord;
+    }
+
+    /**
+     * Setter for y-axis position of point object
+     * @param value for the y-axis coordinate
+     */
+    public void setYCord(double value) {
+        this.yCord = value;
     }
 
     /**
@@ -52,8 +68,8 @@ public class Point {
      * using the distance = Math.sqrt((Math.pow(xCord1-xCord2),2) + (Math.pow(yCord1-yCord2),2))
      */
     public double distanceBetween(Point otherPoint) {
-        double distX = this.xCord - otherPoint.xCord;
-        double distY = this.yCord - otherPoint.yCord;
+        double distX = this.xCord - otherPoint.getXCord();
+        double distY = this.yCord - otherPoint.getYCord();
         return Math.sqrt((distX * distX) + (distY  * distY));
     }
 

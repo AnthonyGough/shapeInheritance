@@ -47,22 +47,22 @@ public class EquilateralTriangle extends Shape2D {
     @Override
     public boolean containsPoint(Point checkPoint) {
         double[] pointDifference = calculatePointDiff(checkPoint);
-        return (pointDifference[1] <= (Math.sqrt(3) * (pointDifference[1]+this.sideLength/3))) &&
-                (pointDifference[1]<= -(Math.sqrt(3) + (pointDifference[0]-this.sideLength/3))) &&
-                (pointDifference[1] >= -(Math.sqrt(3)/6 * sideLength));
+        return (pointDifference[1] <= (Math.sqrt(3) * (pointDifference[0]+this.sideLength/3))) &&
+                (pointDifference[1]<= -(Math.sqrt(3) * (pointDifference[0]-this.sideLength/3))) &&
+                (pointDifference[1] >= -(Math.sqrt(3)/6 * this.sideLength));
     }
 
     private double[] calculatePointDiff(Point point) {
         double[] pointDiff = new double[2];
-        pointDiff[0] = this.centre.getXCord()-point.getXCord();
-        pointDiff[1] = this.centre.getYCord()-point.getYCord();
+        pointDiff[0] = point.getXCord()-this.centre.getXCord();
+        pointDiff[1] = point.getYCord()-this.centre.getYCord();
         return pointDiff;
     }
 
     @Override
     public Point[] getVertices() {
         Point[] vertices = new Point[3];
-        vertices[0] = new Point(this.centre.getXCord(), this.centre.getYCord());
+        vertices[0] = new Point(this.centre.getXCord(), this.centre.getYCord() + Math.sqrt(3)/3*this.sideLength);
         vertices[1] = new Point(this.centre.getXCord()- this.sideLength/2,
                 this.centre.getYCord()-Math.sqrt(3)/6*this.sideLength);
         vertices[2] = new Point(this.centre.getXCord()+ this.sideLength/2,

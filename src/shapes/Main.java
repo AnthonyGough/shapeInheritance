@@ -1,8 +1,9 @@
 package shapes;
 
-import java.awt.*;
-import java.util.Scanner;
 
+import shapes.ShapeType.*;
+
+import java.util.Scanner;
 
 /**
  * Driver class for the program. Do not modify.
@@ -13,9 +14,9 @@ public class Main {
 
     private final static String SHAPE_NUMBER = "Enter the number of shapes to create -> ";
     private final static String NUMBER_OF_POINTS = "Enter the number of points to create -> ";
-    private final static String CENTRE_OF_SHAPE = "Enter the centre of shape %d -> ";
+    private final static String CENTRE_OF_SHAPE = "Enter the centre of shape %d in form of x,y -> ";
     private final static String POINT_ENTRY_NARRATION =  "Enter the coordinates of the point in the form x,y -> ";
-    private final static String SHAPE_TYPE_NARRATION = "Select the type of shape to create from the following options:\n%s";
+    private final static String SHAPE_TYPE_NARRATION = "Select the type of shape %d to create from the following options:\n%s";
     private final static String SHAPE_MENU = "1. Equilateral Triangle\n2. Circle\n3. Rectangle\n4. Square\n\nSelection (1,2,3,4) -> ";
     private final static String TRIANGLE_SIDE = "Enter the side length of the Equilateral Triangle -> ";
     private final static String CIRCLE_RADIUS = "Enter the radius of the circle -> ";
@@ -25,32 +26,30 @@ public class Main {
     private final static String POINT_NUMBER = "Enter the number of points (Maximum of 5 points to check) -> ";
     private final static int NUMBER_OF_POINTS_TO_CHECK = 5;
     private final static String SPECIFIC_POINT_ENTRY_NARRATION =  "Enter the coordinates of point %d in the form x,y -> ";
-    private final static String TRANSLATE_SHAPES = "Enter the amount to translate the shapes, in the form dx,dy -> ";
-    private final static int TRIANGLE = 1;
-    private final static int CIRCLE = 2;
-    private final static int RECTANGLE = 3;
-    private final static int SQUARE = 4;
+    private final static String TRANSLATE_SHAPES = "\n\nEnter the amount to translate the shapes, in the form dx,dy -> ";
+
 
 
 
     public static void main(String[] args)     {
 
         System.out.println( "===========================" );
+        Main program = new Main();
+        Scanner userInput = new Scanner(System.in);
+        int numberOfShapes=program.askIntegerInput(userInput, SHAPE_NUMBER,0, Integer.MAX_VALUE);
+        Shape2D[] shapes = program.readShapes(userInput, numberOfShapes);
 
-        int numberOfShapes=askIntegerInput(SHAPE_NUMBER,0, Integer.MAX_VALUE);
-        Shape2D[] shapes = readShapes(numberOfShapes);
-
-        int numberOfPoints = askIntegerInput(POINT_NUMBER,1,NUMBER_OF_POINTS_TO_CHECK);
-        Point[] points = readPoints(numberOfPoints);
+        int numberOfPoints = program.askIntegerInput(userInput, POINT_NUMBER,1,NUMBER_OF_POINTS_TO_CHECK);
+        Point[] points = program.readPoints(userInput, numberOfPoints);
 
         // Print the shapes and whether they contain the points
-        printShapesDetails(shapes, points);
+        program.printShapesDetails(shapes, points);
 
         // Translate the shapes
-        translateShapes(shapes, points);
+        program.translateShapes(userInput, shapes, points);
 
         // Print the shapes and whether they still contain the points
-        printShapesDetails(shapes, points);
+        program.printShapesDetails(shapes, points);
 
         System.out.println( "===========================" );
     }
@@ -60,9 +59,9 @@ public class Main {
      * @param shapes Array of all shapes
      * @param points Array of points to check
      */
-    public static void translateShapes(Shape2D[] shapes, Point[] points) {
-        System.out.print(TRANSLATE_SHAPES);
-        Point translate = readPoint(TRANSLATE_SHAPES);
+    public void translateShapes(Scanner userInput, Shape2D[] shapes, Point[] points) {
+
+        Point translate = readPoint(userInput, TRANSLATE_SHAPES);
         for (Shape2D shape : shapes) {
             shape.translate(translate.getXCord(), translate.getYCord());
         }
@@ -76,7 +75,7 @@ public class Main {
      * @param numberOfShapes Number of shapes to be created
      * @return Array of shapes
      */
-    static Shape2D[] readShapes(int numberOfShapes)
+    public Shape2D[] readShapes(Scanner userInput, int numberOfShapes)
     {
 
         Shape2D[] shapes = new Shape2D[numberOfShapes];
@@ -85,24 +84,24 @@ public class Main {
         {
             String narration = String.format(CENTRE_OF_SHAPE, i+1);
 
-            Point centre = readPoint(narration);
+            Point centre = readPoint(userInput, narration);
 
-            String concat_narration = String.format(SHAPE_TYPE_NARRATION,SHAPE_MENU);
-            int choice = askIntegerInput(concat_narration,0,5);
-
-            switch (choice)
+            String concat_narration = String.format(SHAPE_TYPE_NARRATION , i+1 ,SHAPE_MENU);
+            int choice = askIntegerInput(userInput, concat_narration,0,5);
+            ShapeType st = ShapeType.from(choice);
+            switch (st)
             {
-                case TRIANGLE:
-                    shapes[i] = readEquilateralTriangle(centre);
+                case ShapeType.TRIANGLE:
+                    shapes[i] = readEquilateralTriangle(userInput, centre);
                     break;
-                case CIRCLE:
-                    shapes[i] = readCircle(centre);
+                case ShapeType.CIRCLE:
+                    shapes[i] = readCircle(userInput, centre);
                     break;
-                case RECTANGLE:
-                    shapes[i] = readRectangle(centre);
+                case ShapeType.RECTANGLE:
+                    shapes[i] = readRectangle(userInput, centre);
                     break;
-                case SQUARE:
-                    shapes[i] = readSquare(centre);
+                case ShapeType.SQUARE:
+                    shapes[i] = readSquare(userInput, centre);
                     break;
                 default:
                     System.out.println( "Invalid choice" );
@@ -114,20 +113,21 @@ public class Main {
 
 
     /**
-     * Method for getting input as an double - validated input plus given range of acceptable values
+     * Method for getting input as a double - validated input plus given range of acceptable values
      * @param narration Prompt for the user instructing what input required
      * @param lowerLimit Lowest acceptable value
      * @param upperLimit Highest acceptable value
      * @return The double entered by user in console
      */
-    public static double askDoubleInput(String narration, double lowerLimit, double upperLimit) {
+    public double askDoubleInput(Scanner userInput, String narration, double lowerLimit, double upperLimit) {
         boolean valid = false;
         double num =0;
         while (!valid) {
-            System.out.println(narration);
+            System.out.print(narration);
 
             try {
-                num = UserInput.nextDouble();
+                num = userInput.nextDouble();
+                userInput.nextLine();
                 valid = true;
             } catch (NumberFormatException ex) {
                 System.out.println("Invalid input - please enter an integer\n");
@@ -143,13 +143,14 @@ public class Main {
      * @param upperLimit Highest acceptable value
      * @return The integer entered by user in console
      */
-    public static int askIntegerInput(String narration, int lowerLimit, int upperLimit) {
+    public int askIntegerInput(Scanner userInput, String narration, int lowerLimit, int upperLimit) {
         boolean valid = false;
         int num =0;
         while (!valid) {
             System.out.print( narration );
             try {
-                num = UserInput.nextInt();
+                num = userInput.nextInt();
+                userInput.nextLine();
                 if ((num<=lowerLimit) || (num>=upperLimit)) {
                     System.out.printf("Invalid input - enter a number greater than %d and less than %d\n", lowerLimit, upperLimit);
                 } else {
@@ -167,33 +168,36 @@ public class Main {
      * @param shapes The shapes to print
      * @param points The points to check if contained in the shape object
      */
-    static void printShapesDetails(Shape2D[] shapes, Point[] points)
+    public void printShapesDetails(Shape2D[] shapes, Point[] points)
     {
         int count = 1;
         for (Shape2D shape : shapes)
         {
 
-            System.out.printf( "Shape %d is %s",count, shape.getClass() );
+            System.out.printf( "\nShape %d is %s\n",count, shape.getClass().getSimpleName() );
+            count++;
 
             // Print whether the shape contains each point
             for (Point point : points)
             {
                 if (shape.containsPoint( point ))
                 {
-                    System.out.printf( "%s contains the point %.2f , %.2f ", shape.getClass(), point.getXCord(), point.getYCord());
+                    System.out.printf( "\t%s contains the point %.2f , %.2f\n ", shape.getClass().getSimpleName(), point.getXCord(), point.getYCord());
+                } else {
+                    System.out.printf( "\t%s does not contain the point %.2f , %.2f\n ", shape.getClass().getSimpleName(), point.getXCord(), point.getYCord());
                 }
             }
             // Print the shape's details
             if (!(shape instanceof Circle)) {
                 Point[] vert = shape.getVertices();
                 for (int i=0; i < vert.length; i++) {
-                    System.out.printf("Vertices %d is %.2f , %.2f", i+1, vert[i].getXCord(), vert[i].getYCord());
+                    System.out.printf("\tVertices %d is %.2f , %.2f\n", i+1, vert[i].getXCord(), vert[i].getYCord());
                 }
             } else {
-                System.out.println("Shape is Circle and has no vertices");
+                System.out.println("\tShape is Circle and has no vertices\n");
             }
-            System.out.printf( "Area: %.2f", shape.getArea() );
-            System.out.printf( "Perimeter: %.2f", shape.getPerimeter() );
+            System.out.printf( "\tArea: %.2f\n", shape.getArea() );
+            System.out.printf( "\tPerimeter: %.2f\n", shape.getPerimeter() );
         }
     }
 
@@ -205,13 +209,13 @@ public class Main {
      *                       inputs from user from console in the form of x,y on Cartesian Plane
      * @return Array of Point objects representing the x,y coordinates entered by user
      */
-    static Point[] readPoints                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   (int numberOfPoints)
-    {
+    public Point[] readPoints(Scanner userInput, int numberOfPoints) {
+
         Point[] points = new Point[numberOfPoints];
         for (int i = 0; i < numberOfPoints; i++)
         {
-           String narration = String.format(SPECIFIC_POINT_ENTRY_NARRATION, i);
-            points[i] = readPoint(narration);
+           String narration = String.format(SPECIFIC_POINT_ENTRY_NARRATION, i+1);
+            points[i] = readPoint(userInput , narration);
         }
         return points;
     }
@@ -222,13 +226,13 @@ public class Main {
      * @param narration is the prompt to the user as to type of input type/format required
      * @return Point object representing point on Cartesian plane
      */
-    static Point readPoint(String narration)
+    public Point readPoint(Scanner userInput, String narration)
     {
         double x=0,y=0;
         boolean valid = false;
         while (!valid) {
-            System.out.println( narration );
-            String input = UserInput.nextLine();
+            System.out.print( narration );
+            String input = userInput.nextLine();
             String regex=",";
             String[] coordinates = input.split( regex,2 );
             if (coordinates.length!=2) {
@@ -237,7 +241,7 @@ public class Main {
                 try {
                     x = Double.parseDouble( coordinates[0] );
                     y = Double.parseDouble( coordinates[1] );
-                    if ((x <=0) || (y<=0)) {
+                    if ((x <0) || (y<0)) {
                         System.out.println("Invalid input - points entered must be in positive cartesian plane (not less than zero\n");
                     } else {
                         valid = true;
@@ -257,9 +261,9 @@ public class Main {
      * @param centre which is the centre of the triangle
      * @return Equilateral Triangle object
      */
-    static EquilateralTriangle readEquilateralTriangle(Point centre)
+    public EquilateralTriangle readEquilateralTriangle(Scanner userInput, Point centre)
     {
-        double side = askDoubleInput(TRIANGLE_SIDE, 1, Double.MAX_VALUE);
+        double side = askDoubleInput(userInput, TRIANGLE_SIDE, 1, Double.MAX_VALUE);
 
         return new EquilateralTriangle( centre, side );
     }
@@ -269,9 +273,9 @@ public class Main {
      * @param centre of the circle
      * @return Circle object
      */
-    static Circle readCircle(Point centre)
+    public Circle readCircle(Scanner userInput, Point centre)
     {
-        double radius = askDoubleInput(CIRCLE_RADIUS, 1, Double.MAX_VALUE);
+        double radius = askDoubleInput(userInput, CIRCLE_RADIUS, 1, Double.MAX_VALUE);
 
         return new Circle( centre, radius );
     }
@@ -281,10 +285,10 @@ public class Main {
      * @param centre of the Rectable
      * @return Rectangle object
      */
-    static Rectangle readRectangle(Point centre)
+    public Rectangle readRectangle(Scanner userInput, Point centre)
     {
-        double width = askDoubleInput(RECTANGLE_WIDTH, 1, Double.MAX_VALUE);
-        double length = askDoubleInput(RECTANGLE_LENGTH, 1, Double.MAX_VALUE);
+        double width = askDoubleInput(userInput, RECTANGLE_WIDTH, 1, Double.MAX_VALUE);
+        double length = askDoubleInput(userInput, RECTANGLE_LENGTH, 1, Double.MAX_VALUE);
 
         return new Rectangle( centre, width, length );
     }
@@ -294,9 +298,9 @@ public class Main {
      * @param centre of the Square
      * @return Square object
      */
-    static Square readSquare(Point centre)
+    public Square readSquare(Scanner userInput, Point centre)
     {
-        double length = askDoubleInput(SQUARE_SIDE, 1, Double.MAX_VALUE);
+        double length = askDoubleInput(userInput, SQUARE_SIDE, 1, Double.MAX_VALUE);
 
         return new Square( centre, length );
     }
