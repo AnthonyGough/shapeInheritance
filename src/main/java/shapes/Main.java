@@ -1,7 +1,7 @@
 package shapes;
 
 
-import shapes.ShapeType.*;
+
 
 import java.util.Scanner;
 
@@ -282,7 +282,7 @@ public class Main {
 
     /**
      * Method gathers required data to create a Rectangle object
-     * @param centre of the Rectable
+     * @param centre of the Rectangle
      * @return Rectangle object
      */
     public Rectangle readRectangle(Scanner userInput, Point centre)
